@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics;
 using System.Text;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using GraphDesignerApi.Models;
 using GraphDesignerApi.Models.Graph;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
-namespace GraphDesignerApi.Controllers
+namespace GraphDesigner.Controllers
 {
     public class HomeController : Controller
     {
@@ -15,11 +15,6 @@ namespace GraphDesignerApi.Controllers
         {
             _logger = logger;
         }
-
-        /*
-         *UI design
-         *
-         */
 
         public IActionResult Index()
         {
