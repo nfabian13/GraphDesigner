@@ -48,6 +48,14 @@
             function GraphApi() {
                 var self = this;
                 var nodes = [];
+
+                self.addNode = function(name) {
+                    nodes.push(name);
+                }
+
+                self.getNodes = function() {
+                    return nodes;
+                }
             }
 
             function GraphDesigner() {
@@ -56,17 +64,28 @@
                 var $txtNodeName = $container.find("#txtNodeName");
                 var $startNodeSelect = $container.find("#startNodeSelect");
                 var $endNodeSelect = $container.find("#endNodeSelect");
+                var graphApi = new GraphApi();
 
                 $("form").submit(function(e) {
                     e.preventDefault();
                 });
 
+                $startNodeSelect.on("change",
+                    function () {
+                        var nodeNamesArray = $(this).val();
+
+                        populateEndNodesTag();
+                        removeOptionFromSelectTag($endNodeSelect, nodeNamesArray);
+                        $endNodeSelect.prop("disabled", false);
+                    });
+
                 $txtNodeName.on("keypress",
                     function (e) {
                         if (e.which === 13) {
-                            appendStartNodeSelectOption();
+                            graphApi.addNode($txtNodeName.val());
+                            appendOptionToSelectTag($startNodeSelect, $txtNodeName.val());
                             increaseSelectTagHeight();
-                            enableEndNodesSelectTag();
+                            populateEndNodesTag();
                             initializeTextInput();
                         }
                     });
@@ -75,25 +94,47 @@
                     initializeTextInput();
                 }
 
+                function removeOptionFromSelectTag($selectTag, nodeNames) {
+                    var id = $selectTag.attr("id");
+                    $.each(nodeNames, function(i, val) {
+                        var selector = "#".concat(id).concat(" option[value='").concat(val).concat("']");
+                        var $option = $container.find(selector);
+
+                        if ($option) {
+                            $option.remove();
+                        }
+                    });
+
+                }
+
+                function resetEndNodesTag() {
+                    $endNodeSelect.empty();
+                    $endNodeSelect.append($("<option>").val("-1").text(""));
+                }
+
                 function populateEndNodesTag() {
+                    var nodes = graphApi.getNodes();
+                    var count = nodes.length;
 
-                }
-
-                function enableEndNodesSelectTag() {
-                    var count = getNodesCount();
-
-                    if (count > 1) {
-                        $endNodeSelect.prop("disabled", false)
+                    if (count <= 1) {
+                        return;
                     }
+                    resetEndNodesTag();
+
+                    $.each(nodes,
+                        function (index, val) {
+                            appendOptionToSelectTag($endNodeSelect, val);
+                        });
                 }
 
-                function appendStartNodeSelectOption() {
-                    var $newNode = $("<option>").val($txtNodeName.val()).text($txtNodeName.val());
-                    $startNodeSelect.append($newNode);
+                function appendOptionToSelectTag($selectTag, text) {
+                    var $newNode = $("<option>").val(text).text(text);
+                    $selectTag.append($newNode);
                 }
 
                 function getNodesCount() {
-                    return $startNodeSelect.children("option").length;
+                    //return $startNodeSelect.children("option").length;
+                    return graphApi.getNodes().length;
                 }
 
                 function increaseSelectTagHeight() {
