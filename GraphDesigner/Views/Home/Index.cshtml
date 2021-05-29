@@ -77,6 +77,10 @@
                         populateEndNodesTag();
                         removeOptionFromSelectTag($endNodeSelect, nodeNamesArray);
                         $endNodeSelect.prop("disabled", false);
+
+                        if (nodeNamesArray.length === graphApi.getNodes().length) {
+                            $endNodeSelect.prop("disabled", true);
+                        }
                     });
 
                 $txtNodeName.on("keypress",
