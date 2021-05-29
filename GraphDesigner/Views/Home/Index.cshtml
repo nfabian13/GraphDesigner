@@ -2,34 +2,117 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="container">
+<div class="container" id="mainContainer">
     <form method="post">
         <div class="row">
             <div class="col-md-5 offset-md-4">
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="floatingInput" placeholder="Node 1" required>
-                    <label for="floatingInput">Type a Node name</label>
+                    <input type="text" class="form-control" id="txtNodeName" placeholder="Node 1">
+                    <label for="txtNodeName">Type a Node name</label>
                     <div class="valid-feedback d-block text-secondary"><em>Press 'ENTER' to add</em></div>
                 </div>
             </div>
         </div>
+
         <div class="row">
             <div class="col-md-7 offset-md-3">
                 <div class="row">
                     <div class="col">
-                        <label for="startNode">Start Node(s)</label>
-                        <select class="form-control" id="startNode" aria-label="Start Node(s)" multiple size="6">
+                        <label for="startNodeSelect">Start Node(s)</label>
+                        <select class="form-control" id="startNodeSelect" aria-label="Start Node(s)" multiple size="1">
                         </select>
                     </div>
 
                     <div class="col">
-                        <label for="endNode">End Node</label>
-                        <select class="form-control" id="endNode" aria-label="Start Node(s)" multiple size="6">
+                        <label for="endNodeSelect">End Node</label>
+                        <select class="form-control" id="endNodeSelect" aria-label="End Node" disabled>
                         </select>
                     </div>
                 </div>
             </div>
         </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-8 offset-md-5">
+                <button type="button" class="btn btn-light">Connect Nodes selection</button>
+            </div>
+        </div>
     </form>
-    
 </div>
+
+
+<script type="text/javascript" language="javascript">
+    $(document).ready(function () {
+        (function () {
+
+            function GraphApi() {
+                var self = this;
+                var nodes = [];
+            }
+
+            function GraphDesigner() {
+                var self = this;
+                var $container = $("#mainContainer");
+                var $txtNodeName = $container.find("#txtNodeName");
+                var $startNodeSelect = $container.find("#startNodeSelect");
+                var $endNodeSelect = $container.find("#endNodeSelect");
+
+                $("form").submit(function(e) {
+                    e.preventDefault();
+                });
+
+                $txtNodeName.on("keypress",
+                    function (e) {
+                        if (e.which === 13) {
+                            appendStartNodeSelectOption();
+                            increaseSelectTagHeight();
+                            enableEndNodesSelectTag();
+                            initializeTextInput();
+                        }
+                    });
+
+                self.init = function() {
+                    initializeTextInput();
+                }
+
+                function populateEndNodesTag() {
+
+                }
+
+                function enableEndNodesSelectTag() {
+                    var count = getNodesCount();
+
+                    if (count > 1) {
+                        $endNodeSelect.prop("disabled", false)
+                    }
+                }
+
+                function appendStartNodeSelectOption() {
+                    var $newNode = $("<option>").val($txtNodeName.val()).text($txtNodeName.val());
+                    $startNodeSelect.append($newNode);
+                }
+
+                function getNodesCount() {
+                    return $startNodeSelect.children("option").length;
+                }
+
+                function increaseSelectTagHeight() {
+                    var startNodesCount = getNodesCount();
+
+                    if (startNodesCount <= 10){
+                        $startNodeSelect.attr("size", startNodesCount++);
+                    }
+                }
+
+                function initializeTextInput() {
+                    $txtNodeName.val('');
+                    $txtNodeName.focus();
+                }
+            }
+
+            new GraphDesigner().init();
+
+        })();
+
+    });
+</script>
