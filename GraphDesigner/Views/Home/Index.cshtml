@@ -2,6 +2,18 @@
     ViewData["Title"] = "Home Page";
 }
 
+<style>
+    .btn-circle {
+        width: 30px;
+        height: 30px;
+        padding: 6px 0px;
+        border-radius: 15px;
+        text-align: center;
+        font-size: 12px;
+        line-height: 1.42857;
+    }
+</style>
+
 <div class="container" id="mainContainer">
     <form method="post">
         <div class="row">
@@ -35,6 +47,61 @@
         <div class="row mt-4">
             <div class="col-md-8 offset-md-5">
                 <button type="button" class="btn btn-light">Connect Nodes selection</button>
+            </div>
+        </div>
+        
+        <div class="row mt-5">
+            <div class="col-md-8 offset-md-3">
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Start</th>
+                            <th scope="col"></th>
+                            <th scope="col">Connects To</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>
+                                <button type="button" class="btn btn-primary btn-circle">
+                                    A
+                                </button>
+                            </td>
+                            <td>arrow</td>
+                            <td>
+                                <button type="button" class="btn btn-primary btn-circle">
+                                    B
+                                </button>
+                                <button type="button" class="btn btn-primary btn-circle">
+                                    C
+                                </button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">2</th>
+                            <td>
+                                <button type="button" class="btn btn-primary btn-circle">
+                                    B
+                                </button>
+                            </td>
+                            <td>arrow</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <th scope="row">3</th>
+                            <td>
+                                <button type="button" class="btn btn-primary btn-circle">
+                                    C
+                                </button>
+                            </td>
+                            <td>arrow</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+
+                </table>
             </div>
         </div>
     </form>
