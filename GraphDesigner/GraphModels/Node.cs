@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace GraphDesignerApi.Models.Graph
+namespace GraphDesigner.GraphModels
 {
     public class Node
     {

@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace GraphDesignerApi.Models.Graph
+namespace GraphDesigner.GraphModels
 {
     public class Graph
     {
@@ -41,8 +40,8 @@ namespace GraphDesignerApi.Models.Graph
             var edges = node.Edges;
             foreach (var edge in edges)
             {
-                if(prevNodeId == edge.EndNode) continue;
-                var nextNode = Nodes.Find(node => node.Id == edge.EndNode);
+                if(prevNodeId == edge.EndNodeId) continue;
+                var nextNode = Nodes.Find(node => node.Id == edge.EndNodeId);
                 if (nextNode.Visit) return true;
                 nextNode.Visit = true;
                 var flag = HasCycle(nextNode, node.Id);

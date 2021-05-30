@@ -1,7 +1,10 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Text;
+using GraphDesigner.GraphModels;
+using GraphDesigner.Models;
 using GraphDesignerApi.Models;
-using GraphDesignerApi.Models.Graph;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -16,7 +19,7 @@ namespace GraphDesigner.Controllers
             _logger = logger;
         }
 
-        public Graph GetGraphObject()
+        public GraphModels.Graph GetGraphObject()
         {
             var graph = new Graph();
             graph.Name = "Grafo 1";
@@ -39,15 +42,15 @@ namespace GraphDesigner.Controllers
             var edge4 = new Edge();
             var edge5 = new Edge();
 
-            edge.StartNode = node1.Id;
-            edge.EndNode = node2.Id;
-            edge2.EndNode = node1.Id;
+            //edge.StartNode = node1.Id;
+            edge.EndNodeId = node2.Id;
+            edge2.EndNodeId = node1.Id;
             node1.Edges.Add(edge);
             node2.Edges.Add(edge2);
             
-            edge3.EndNode = node3.Id;
-            edge4.EndNode = node2.Id;
-            edge5.EndNode = node1.Id;
+            edge3.EndNodeId = node3.Id;
+            edge4.EndNodeId = node2.Id;
+            edge5.EndNodeId = node1.Id;
 
             node2.Edges.Add(edge3);
             node3.Edges.Add(edge4);
@@ -77,6 +80,40 @@ namespace GraphDesigner.Controllers
             Debug.WriteLine(sb.ToString());
 
             return View();
+        }
+
+        [HttpPost]
+        public IActionResult GenerateGraph(List<NodeModel> nodes, List<EdgeModel> edges)
+        {
+            var graph = new Graph();
+            foreach (var node in nodes)
+            {
+                graph.Nodes.Add(new Node
+                {
+                    Name = node.Name,
+                    Id = node.Id
+                });
+            }
+
+            foreach (var edge in edges)
+            {
+                var node = graph.Nodes.First(x => x.Id == edge.StartNodeId);
+                node.Edges.Add(new Edge
+                {
+                    EndNodeId = graph.Nodes.First(x => x.Id == edge.EndNodeId).Id
+                });
+            }
+
+            var graphDto = new GraphDto
+            {
+                Graph = graph,
+                GraphGrade = graph.CalculateGraphGrade(),
+                GraphGradeSummatory = graph.CalculateSummatoryNodesGrade(),
+                GraphLowestGrade = graph.CalculateLowestNodeGrade(),
+                GraphHasCycle = graph.DetectCycleInGraph()
+            };
+
+            return Json(graphDto);
         }
 
         [HttpGet]
