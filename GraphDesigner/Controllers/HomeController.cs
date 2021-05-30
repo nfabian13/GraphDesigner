@@ -22,32 +22,42 @@ namespace GraphDesigner.Controllers
             graph.Name = "Grafo 1";
 
             var node1 = new Node();
+            node1.Id = 1;
             node1.Name = "node 1";
 
             var node2 = new Node();
+            node2.Id = 2;
             node2.Name = "node 2";
 
             var node3 = new Node();
+            node3.Id = 3;
             node3.Name = "node 3";
 
             var edge = new Edge();
-            edge.StartNode = node1;
-            edge.EndNode = node2;
-
-            node1.Edges.Add(edge);
-            node2.Edges.Add(edge);
-
             var edge2 = new Edge();
-            edge2.StartNode = node2;
-            edge2.EndNode = node3;
+            var edge3 = new Edge();
+            var edge4 = new Edge();
+            var edge5 = new Edge();
 
+            edge.StartNode = node1.Id;
+            edge.EndNode = node2.Id;
+            edge2.EndNode = node1.Id;
+            node1.Edges.Add(edge);
             node2.Edges.Add(edge2);
-            node3.Edges.Add(edge2);
+            
+            edge3.EndNode = node3.Id;
+            edge4.EndNode = node2.Id;
+            edge5.EndNode = node1.Id;
+
+            node2.Edges.Add(edge3);
+            node3.Edges.Add(edge4);
 
             graph.Nodes.Add(node1);
             graph.Nodes.Add(node2);
             graph.Nodes.Add(node3);
 
+            var flag = graph.DetectCycleInGraph();
+            
             return graph;
         }
 

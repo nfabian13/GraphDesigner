@@ -30,9 +30,26 @@ namespace GraphDesignerApi.Models.Graph
             return Nodes.Min(x => x.Edges.Count);
         }
 
-        bool DetectCycleInGraph()
+        public bool DetectCycleInGraph()
         {
-            throw new NotImplementedException();
+            var node = Nodes.First();
+            return HasCycle(node,-1);
+        }
+
+        private bool HasCycle(Node node, int prevNodeId)
+        {
+            var edges = node.Edges;
+            foreach (var edge in edges)
+            {
+                if(prevNodeId == edge.EndNode) continue;
+                var nextNode = Nodes.Find(node => node.Id == edge.EndNode);
+                if (nextNode.Visit) return true;
+                nextNode.Visit = true;
+                var flag = HasCycle(nextNode, node.Id);
+                if (flag)
+                    return true;
+            }
+            return false;
         }
     }
 }
