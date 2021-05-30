@@ -83,7 +83,7 @@ namespace GraphDesigner.Controllers
         }
 
         [HttpPost]
-        public IActionResult GenerateGraph(List<NodeModel> nodes, List<EdgeModel> edges)
+        public IActionResult GetGraph(List<NodeModel> nodes, List<EdgeModel> edges)
         {
             var graph = new Graph();
             foreach (var node in nodes)

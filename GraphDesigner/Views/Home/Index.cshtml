@@ -43,31 +43,56 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="row mt-4">
             <div class="col-md-8 offset-md-5">
-                <button id="btnConnectNodes" type="button" class="btn btn-light">Connect Nodes selection</button>
-                <button id="print">Print</button>
+                <button id="btnConnectNodes" type="button" class="btn btn-secondary">Connect Nodes selection</button>
             </div>
         </div>
 
         <div class="row mt-5">
-            <div class="col-md-8 offset-md-3">
+            <div class="col-md-5 offset-md-5">
                 <table id="nodeConnectionsTable" class="table table-borderless caption-top">
                     <caption>Node's connection</caption>
                     <thead class="table-light">
-                    <tr class="d-flex">
-                        <th scope="col" class="col-1">#</th>
-                        <th scope="col" class="col-1">Node</th>
-                        <th scope="col" class="col-0"></th>
-                        <th scope="col" class="col-4">Connects To</th>
-                    </tr>
+                        <tr class="d-flex">
+                            <th scope="col" class="col-1">#</th>
+                            <th scope="col" class="col-1">Node</th>
+                            <th scope="col" class="col-0"></th>
+                            <th scope="col" class="col-4">Connects To</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    @* Data is populated dynamically *@
+                        @* Data is populated dynamically *@
                     </tbody>
 
                 </table>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-8 offset-md-5">
+                <button id="btnCreateGraph" type="button" class="btn btn-secondary">Create Graph</button>
+            </div>
+        </div>
+
+
+        <!-- Modal -->
+        <div class="modal fade" id="graphModal" aria-hidden="true">
+            <div class="modal-dialog modal-fullscreen">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="staticBackdropLabel">Graph Title</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        Draw the graph here!!
+                    </div>
+                    @*<div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Understood</button>
+                    </div>*@
+                </div>
             </div>
         </div>
     </form>
@@ -83,6 +108,21 @@
                 var nodes = [];
                 var edges = [];
                 var idGenerator = 0;
+
+                self.getGraph = function (successCb, errorCb) {
+                    // TODO: construct the data shape that 'GetGraph' controller route acceppts: List<NodeModel> nodes, List<EdgeModel> edges
+                    var myData = {};
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/GetGraph",
+                        data: myData,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: successCb,
+                        error: errorCb
+                    });
+                }
 
                 self.getTableData = function() {
                     var tableData = nodes.map(node => {
@@ -126,15 +166,34 @@
                 var $endNodeSelect = $container.find("#endNodeSelect");
                 var $btnConnectNodes = $container.find("#btnConnectNodes");
                 var $table = $container.find("#nodeConnectionsTable");
+                var $btnCreateGraph = $container.find("#btnCreateGraph");
                 var graphApi = new GraphApi();
 
                 $("form").submit(function(e) {
                     e.preventDefault();
                 });
 
-                $container.find("#print").on("click",
+                $btnCreateGraph.on("click",
                     function () {
-                        console.log(graphApi.getTableData());
+                        var options = {
+                            backdrop: "static",
+                            focus: true
+                        };
+
+                        var myModal = new bootstrap.Modal(document.getElementById("graphModal"), options);
+                        myModal.show();
+
+                        // TODO: Uncomment following code:
+                        /*
+                        graphApi.getGraph(
+                            function (response, textStatus, xhr) {
+                                //TODO: use library https://js.cytoscape.org/ to draw a graph in the modal
+                            },
+                            function (xhr, textStatus, errorThrown) {
+                                // TODO: handle error and show this to the UI somehow
+                            });
+
+                        */
                     });
 
                 $btnConnectNodes.on("click",
