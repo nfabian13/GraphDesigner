@@ -87,16 +87,22 @@
                     function (e) {
                         if (e.which === 13) {
                             graphApi.addNode($txtNodeName.val());
-                            //TODO: clear start nodes selection
+                            resetStartNodesSelection();
                             appendOptionToSelectTag($startNodeSelect, $txtNodeName.val());
                             increaseSelectTagHeight();
                             populateEndNodesTag();
-                            initializeTextInput();
+                            resetTextInput();
                         }
                     });
 
                 self.init = function() {
-                    initializeTextInput();
+                    resetTextInput();
+                }
+
+                function resetStartNodesSelection() {
+                    var id = $startNodeSelect.attr("id");
+                    var selector = "#".concat(id).concat(" option:selected");
+                    $(selector).prop("selected", false);
                 }
 
                 function removeOptionFromSelectTag($selectTag, nodeNames) {
@@ -115,6 +121,7 @@
                 function resetEndNodesTag() {
                     $endNodeSelect.empty();
                     $endNodeSelect.append($("<option>").val("-1").text(""));
+                    $endNodeSelect.prop("disabled", true);
                 }
 
                 function populateEndNodesTag() {
@@ -150,7 +157,7 @@
                     }
                 }
 
-                function initializeTextInput() {
+                function resetTextInput() {
                     $txtNodeName.val('');
                     $txtNodeName.focus();
                 }
