@@ -87,6 +87,7 @@
                     function (e) {
                         if (e.which === 13) {
                             graphApi.addNode($txtNodeName.val());
+                            //TODO: clear start nodes selection
                             appendOptionToSelectTag($startNodeSelect, $txtNodeName.val());
                             increaseSelectTagHeight();
                             populateEndNodesTag();

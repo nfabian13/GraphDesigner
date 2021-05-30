@@ -16,7 +16,7 @@ namespace GraphDesigner.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public Graph GetGraphObject()
         {
             var graph = new Graph();
             graph.Name = "Grafo 1";
@@ -48,6 +48,12 @@ namespace GraphDesigner.Controllers
             graph.Nodes.Add(node2);
             graph.Nodes.Add(node3);
 
+            return graph;
+        }
+
+        public IActionResult Index()
+        {
+            var graph = GetGraphObject();
 
             var grade = graph.CalculateGraphGrade();
             var sum = graph.CalculateSummatoryNodesGrade();
@@ -61,6 +67,14 @@ namespace GraphDesigner.Controllers
             Debug.WriteLine(sb.ToString());
 
             return View();
+        }
+
+        [HttpGet]
+        [Route("graph")]
+        public IActionResult GetGraph()
+        {
+            var graph = GetGraphObject();
+            return Ok(graph);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
