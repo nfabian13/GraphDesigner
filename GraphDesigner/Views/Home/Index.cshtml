@@ -47,58 +47,24 @@
         <div class="row mt-4">
             <div class="col-md-8 offset-md-5">
                 <button id="btnConnectNodes" type="button" class="btn btn-light">Connect Nodes selection</button>
+                <button id="print">Print</button>
             </div>
         </div>
-        
+
         <div class="row mt-5">
             <div class="col-md-8 offset-md-3">
-                <table class="table table-borderless">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Start</th>
-                            <th scope="col"></th>
-                            <th scope="col">Connects To</th>
-                        </tr>
+                <table id="nodeConnectionsTable" class="table table-borderless caption-top">
+                    <caption>Node's connection</caption>
+                    <thead class="table-light">
+                    <tr class="d-flex">
+                        <th scope="col" class="col-1">#</th>
+                        <th scope="col" class="col-1">Node</th>
+                        <th scope="col" class="col-0"></th>
+                        <th scope="col" class="col-4">Connects To</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <th scope="row">1</th>
-                            <td>
-                                <button type="button" class="btn btn-primary btn-circle">
-                                    A
-                                </button>
-                            </td>
-                            <td>arrow</td>
-                            <td>
-                                <button type="button" class="btn btn-primary btn-circle">
-                                    B
-                                </button>
-                                <button type="button" class="btn btn-primary btn-circle">
-                                    C
-                                </button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">2</th>
-                            <td>
-                                <button type="button" class="btn btn-primary btn-circle">
-                                    B
-                                </button>
-                            </td>
-                            <td>arrow</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <th scope="row">3</th>
-                            <td>
-                                <button type="button" class="btn btn-primary btn-circle">
-                                    C
-                                </button>
-                            </td>
-                            <td>arrow</td>
-                            <td></td>
-                        </tr>
+                    @* Data is populated dynamically *@
                     </tbody>
 
                 </table>
@@ -116,29 +82,17 @@
                 var self = this;
                 var nodes = [];
                 var edges = [];
-                var nodeConnections = [];
-                //var obj =
-                //{
-                //    start: 'a',
-                //    endNodes: ["b", "c", "d"]
-                //};
-
-                //var obj2 =
-                //{
-                //    start: 'b',
-                //    endNodes: ["a", "c", "d"]
-                //};
-
-                var tableData = nodes.map(node => {
-                    return {
-                        start: node.name,
-                        endNodes: edges.filter(x => x.startNodeId == node.id).map(e => nodes.filter(n => n.id == e.endNodeId).map(nn => nn.name))
-                    };
-                });
-
-                nodeConnections.push(tableData);
-
                 var idGenerator = 0;
+
+                self.getTableData = function() {
+                    var tableData = nodes.map(node => {
+                        return {
+                            startNode: node.name,
+                            endNodes: edges.filter(x => x.startNodeId == node.id).map(e => nodes.filter(n => n.id == e.endNodeId).map(nn => nn.name))
+                        };
+                    });
+                    return tableData;
+                }
 
                 self.addEdge = function (startNodeId, endNodeId) {
                    var edge = {
@@ -171,11 +125,17 @@
                 var $startNodeSelect = $container.find("#startNodeSelect");
                 var $endNodeSelect = $container.find("#endNodeSelect");
                 var $btnConnectNodes = $container.find("#btnConnectNodes");
+                var $table = $container.find("#nodeConnectionsTable");
                 var graphApi = new GraphApi();
 
                 $("form").submit(function(e) {
                     e.preventDefault();
                 });
+
+                $container.find("#print").on("click",
+                    function () {
+                        console.log(graphApi.getTableData());
+                    });
 
                 $btnConnectNodes.on("click",
                     function () {
@@ -188,11 +148,33 @@
 
                         $.each(startNodesSelectedOptions,
                             function (index, opt) {
-                                //duplicate addEdge call due to bidirectional edge addition
+                                //duplicate addEdge() call due to bidirectional edge addition
                                 graphApi.addEdge(parseInt(opt.value), parseInt(endNodeSelectedOption.value));
                                 graphApi.addEdge(parseInt(endNodeSelectedOption.value), parseInt(opt.value));
                             });
+
+                        drawNodeConnectionsTable();
                     });
+
+                function drawNodeConnectionsTable() {
+                    var $tbody = $table.children("tbody");
+                    var data = graphApi.getTableData();
+
+                    $tbody.empty();
+                    $.each(data,
+                        function(i, item) {
+                            var $circle = $("<button>").addClass("btn btn-primary btn-circle");
+                            var endNodesCircles = [];
+
+                            item.endNodes.forEach(endNodeName => endNodesCircles.push($circle.addClass("me-1").text(endNodeName).prop("outerHTML")));
+                            $("<tr>").addClass("d-flex").append(
+                                    $("<td>").addClass("col-1").text(i + 1),
+                                    $("<td>").addClass("col-1").append($circle.text(item.startNode)),
+                                    $("<td>").addClass("col-0").append("<i class='bi-arrow-right'></i>"),
+                                    $("<tr>").addClass("col-4").html(endNodesCircles.join("")))
+                                .appendTo($tbody);
+                        });
+                }
 
                 $startNodeSelect.on("change",
                     function () {

@@ -5,6 +5,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\lib\font-awesome\**" />
+    <Content Remove="wwwroot\lib\font-awesome\**" />
+    <EmbeddedResource Remove="wwwroot\lib\font-awesome\**" />
+    <None Remove="wwwroot\lib\font-awesome\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
