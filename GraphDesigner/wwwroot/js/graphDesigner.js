@@ -111,7 +111,12 @@
 
     function bindOnClickEvents() {
         $btnCreateGraph.on("click",
-            function() {
+            function () {
+                if (!graphApi.getNodes().length) {
+                    alert("At least 1 Node must be specified");
+                    return;
+                }
+
                 graphApi.getGraph(
                     function(response, textStatus, xhr) {
                         console.log(JSON.stringify("http response: " + JSON.stringify(response)));
