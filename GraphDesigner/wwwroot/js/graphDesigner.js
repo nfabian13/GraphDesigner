@@ -114,7 +114,7 @@
             function() {
                 graphApi.getGraph(
                     function(response, textStatus, xhr) {
-                        console.log(JSON.stringify(response));
+                        console.log(JSON.stringify("http response: " + JSON.stringify(response)));
                         var graph = response.graph;
                         var graphElements = [];
                         $.each(graph.nodes,
@@ -133,8 +133,13 @@
                                     graphElements.push(edge);
                                 });
                             });
-                        console.log(graphElements);
+
+                        console.log("JSON structure sent to the graph lib: " + JSON.stringify(graphElements));
+
+                        displayGraphStats(response);
+
                         cy.add(graphElements);
+
                         //addHardCodedNodesToGraph();
                         showModal();
                     },
@@ -162,6 +167,25 @@
                     });
                 drawNodeConnectionsTable();
             });
+    }
+
+    function displayGraphStats(resp) {
+        var footer = $modal.find("div.modal-footer");
+        footer.addClass("fst-italic fw-bold");
+        footer.empty();
+
+        var graphGrade = resp.graphGrade;
+        var graphGradeSummatory = resp.graphGradeSummatory;
+        var graphLowestGrade = resp.graphLowestGrade;
+        var hasCycle = resp.graphHasCycle === true ? "YES!" : "NO";
+
+        footer.append($("<label>").text("Graph grade: ".concat(graphGrade)));
+        footer.append($("<span>").text("·"));
+        footer.append($("<label>").text("Graph's grade sum: ".concat(graphGradeSummatory)));
+        footer.append($("<span>").text("·"));
+        footer.append($("<label>").text("Graph's lowest grade: ".concat(graphLowestGrade)));
+        footer.append($("<span>").text("·"));
+        footer.append($("<label>").text("Has cycle?: ".concat(hasCycle)));
     }
 
     function drawNodeConnectionsTable() {
