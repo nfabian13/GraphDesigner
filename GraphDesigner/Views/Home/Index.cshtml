@@ -27,7 +27,7 @@
         <div class="row">
             <div class="col-md-5 offset-md-4">
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="txtNodeName" placeholder="Node 1">
+                    <input type="text" class="form-control" id="txtNodeName" maxlength="3">
                     <label for="txtNodeName">Type a Node name</label>
                     <div class="valid-feedback d-block text-secondary"><em>Press 'ENTER' to add</em></div>
                 </div>
@@ -234,6 +234,11 @@
                                 var val = $txtNodeName.val();
                                 var exists = graphApi.getNodes().filter(x => x.name === val).length > 0;
 
+                                if (isEmpty(val)) {
+                                    alert("Invalid node name!");
+                                    return;
+                                }
+
                                 if (exists) {
                                     alert("Duplicate node name!");
                                     return;
@@ -261,6 +266,10 @@
                             });
                             layout.run();
                         });
+                }
+
+                function isEmpty(str) {
+                    return !str.trim().length;
                 }
 
                 function showModal() {
