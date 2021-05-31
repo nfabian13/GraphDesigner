@@ -89,6 +89,7 @@ namespace GraphDesigner.Controllers
         }
 
         [HttpPost]
+        [Route("get-graph")]
         public IActionResult GetGraph(List<NodeModel> nodes, List<EdgeModel> edges)
         {
             var graph = new Graph();

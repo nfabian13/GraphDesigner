@@ -19,15 +19,11 @@
         display: block;
         border: solid;
         border-width: 1px;
-        /*position: absolute;
-        left: 0;
-        top: 0;
-        z-index: 999;*/
     }
 </style>
 
 <div class="container" id="mainContainer">
-    <form method="post">
+    <form method="post" data-url="@Url.Action("GetGraph", "Home")">
         <div class="row">
             <div class="col-md-5 offset-md-4">
                 <div class="form-floating mb-3">
@@ -94,7 +90,7 @@
             <div class="modal-dialog modal-fullscreen">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="staticBackdropLabel">The Graph</h5>
+                        <h5 class="modal-title" id="staticBackdropLabel">Graph visualisation</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -121,26 +117,26 @@
     $(document).ready(function () {
         (function () {
 
-            function GraphApi() {
+            function GraphApi(url) {
                 var self = this;
                 var nodes = [];
                 var edges = [];
                 var idGenerator = 0;
 
                 self.getGraph = function (successCb, errorCb) {
-                    // TODO: construct the data shape that 'GetGraph' controller route acceppts: List<NodeModel> nodes, List<EdgeModel> edges
-                    //var myData = {};
+                    var myData = {
+                        nodes,
+                        edges
+                    };
 
-                    //$.ajax({
-                    //    type: "POST",
-                    //    url: "/GetGraph",
-                    //    data: myData,
-                    //    contentType: "application/json; charset=utf-8",
-                    //    dataType: "json",
-                    //    success: successCb,
-                    //    error: errorCb
-                    //});
-                    setTimeout(successCb, 2000);
+                    $.ajax({
+                        type: "POST",
+                        url,
+                        data: myData,
+                        dataType: "json",
+                        success: successCb,
+                        error: errorCb
+                    });
                 }
 
                 self.getTableData = function () {
@@ -187,7 +183,8 @@
                 var $table = $container.find("#nodeConnectionsTable");
                 var $btnCreateGraph = $container.find("#btnCreateGraph");
                 var $modal = $container.find("#graphModal");
-                var graphApi = new GraphApi();
+                var url = $container.find("form").data("url");
+                var graphApi = new GraphApi(url);
                 var cy = cytoscape({
                     container: document.getElementById("cy"),
                     zoom: 1,
@@ -292,11 +289,12 @@
                         function () {
                             graphApi.getGraph(
                                 function (response, textStatus, xhr) {
+                                    console.log(JSON.stringify(response));
                                     addElementsToCytoscapeGraph();
                                     showModal();
                                 },
                                 function (xhr, textStatus, errorThrown) {
-                                    // TODO: handle error and show this to the UI somehow
+                                    alert("error: " + textStatus);
                                 });
                         });
 
