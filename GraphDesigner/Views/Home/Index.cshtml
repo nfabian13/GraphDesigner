@@ -272,14 +272,14 @@
                     myModal.show();
                 }
 
-                function addElementsToCytoscapeGraph() {
+                function addHardCodedNodesToGraph() {
                     cy.add([
-                        { group: "nodes", data: { id: "a" }, position: { x: 100, y: 100 } },
-                        { group: "nodes", data: { id: "b" }, position: { x: 200, y: 200 } },
-                        { group: "nodes", data: { id: "c" }, position: { x: 300, y: 300 } },
-                        { group: "nodes", data: { id: 'd' }, position: { x: 400, y: 400 } },
+                        { group: "nodes", data: { id: "a" } /*position: { x: 100, y: 100 }*/ },
+                        { group: "nodes", data: { id: "b" } /*position: { x: 200, y: 200 }*/ },
+                        { group: "nodes", data: { id: "c" } /*position: { x: 300, y: 300 }*/ },
+                        { group: "nodes", data: { id: 'd' } /*position: { x: 400, y: 400 }*/ },
                         { group: "edges", data: { id: 'ab', source: 'a', target: 'b' } },
-                        { group: "edges", data: { id: 'ac', source: 'a', target: 'c' } },
+                        { group: "edges", data: { id: 'ba', source: 'b', target: 'a' } },
                         { group: "edges", data: { id: 'ad', source: 'a', target: 'd' } }
                     ]);
                 }
@@ -290,7 +290,34 @@
                             graphApi.getGraph(
                                 function (response, textStatus, xhr) {
                                     console.log(JSON.stringify(response));
-                                    addElementsToCytoscapeGraph();
+                                    var graph = response.graph;
+                                    var graphElements = [];
+
+                                    $.each(graph.nodes,
+                                        function (nodeIndex, node) {
+                                            var nodeElement = {
+                                                group: "nodes",
+                                                data: { id: node.name }
+                                            };
+
+                                            graphElements.push(nodeElement);
+
+                                            var edge = {};
+
+                                            node.edges.forEach((edgeElement, edgeIndex) => {
+                                                var edgeId = "".concat(node.id).concat(edgeElement.endNodeId);
+                                                var targetNodeId = graph.nodes.find(x => x.id === edgeElement.endNodeId).name;
+
+                                                edge.group = "edges";
+                                                edge.data = { id: edgeId, source: node.name, target: targetNodeId };
+                                                graphElements.push(edge);
+                                            });
+                                        });
+                                    console.log(graphElements);
+
+                                    cy.add(graphElements);
+
+                                    //addHardCodedNodesToGraph();
                                     showModal();
                                 },
                                 function (xhr, textStatus, errorThrown) {
