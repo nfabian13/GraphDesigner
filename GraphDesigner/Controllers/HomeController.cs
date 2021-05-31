@@ -82,6 +82,12 @@ namespace GraphDesigner.Controllers
             return View();
         }
 
+        [HttpGet("test")]
+        public IActionResult Test()
+        {
+            return View("~/Views/Home/Test.cshtml");
+        }
+
         [HttpPost]
         public IActionResult GetGraph(List<NodeModel> nodes, List<EdgeModel> edges)
         {

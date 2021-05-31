@@ -83,6 +83,10 @@
         "font/bootstrap-icons.css",
         "font/bootstrap-icons.json"
       ]
+    },
+    {
+      "library": "cytoscape@3.18.2",
+      "destination": "wwwroot/lib/cytoscape/"
     }
   ]
 }

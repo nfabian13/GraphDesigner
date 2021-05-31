@@ -12,6 +12,18 @@
         font-size: 12px;
         line-height: 1.42857;
     }
+
+    #cy {
+        height: 100%;
+        width: 100%;
+        display: block;
+        border: solid;
+        border-width: 1px;
+        /*position: absolute;
+        left: 0;
+        top: 0;
+        z-index: 999;*/
+    }
 </style>
 
 <div class="container" id="mainContainer">
@@ -57,7 +69,7 @@
                     <thead class="table-light">
                         <tr class="d-flex">
                             <th scope="col" class="col-1">#</th>
-                            <th scope="col" class="col-1">Node</th>
+                            <th scope="col" class="col-2">Node</th>
                             <th scope="col" class="col-0"></th>
                             <th scope="col" class="col-4">Connects To</th>
                         </tr>
@@ -82,16 +94,31 @@
             <div class="modal-dialog modal-fullscreen">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="staticBackdropLabel">Graph Title</h5>
+                        <h5 class="modal-title" id="staticBackdropLabel">The Graph</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        Draw the graph here!!
+                        <div id="cy"></div>
+                        @*<div class="container">
+                            <div class="row">
+                                <div class="col-10">
+
+                                </div>
+                                <div class="col-2">
+                                    <fieldset>
+                                        <label><em>Stats!</em></label>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>*@
                     </div>
-                    @*<div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">Understood</button>
-                    </div>*@
+                    <div class="modal-footer">
+                        <fieldset>
+                            <label>Graph grade:</label> <span>5</span>
+                            <label>Graph grade:</label> <span>5</span>
+                            <label>Graph grade:</label> <span>5</span>
+                        </fieldset>
+                    </div>
                 </div>
             </div>
         </div>
@@ -124,7 +151,7 @@
                     });
                 }
 
-                self.getTableData = function() {
+                self.getTableData = function () {
                     var tableData = nodes.map(node => {
                         return {
                             startNode: node.name,
@@ -135,14 +162,14 @@
                 }
 
                 self.addEdge = function (startNodeId, endNodeId) {
-                   var edge = {
+                    var edge = {
                         startNodeId,
                         endNodeId
                     };
                     edges.push(edge);
                 }
 
-                self.getEdges = function() {
+                self.getEdges = function () {
                     return edges;
                 }
 
@@ -153,7 +180,7 @@
                     return newId;
                 }
 
-                self.getNodes = function() {
+                self.getNodes = function () {
                     return nodes;
                 }
             }
@@ -169,7 +196,7 @@
                 var $btnCreateGraph = $container.find("#btnCreateGraph");
                 var graphApi = new GraphApi();
 
-                $("form").submit(function(e) {
+                $("form").submit(function (e) {
                     e.preventDefault();
                 });
 
@@ -179,21 +206,81 @@
                             backdrop: "static",
                             focus: true
                         };
+                        var $modal = $container.find("#graphModal");
+                        var cy = cytoscape({
+                            container: document.getElementById("cy"),
+                            zoom: 1,
+                            pan: { x: 300, y: 200 },
 
-                        var myModal = new bootstrap.Modal(document.getElementById("graphModal"), options);
-                        myModal.show();
+                            //boxSelectionEnabled: false,
+                            //autounselectify: true,
 
-                        // TODO: Uncomment following code:
-                        /*
-                        graphApi.getGraph(
-                            function (response, textStatus, xhr) {
-                                //TODO: use library https://js.cytoscape.org/ to draw a graph in the modal
+                            elements: {
+                                nodes: [
+                                    {
+                                        data: { id: 'a' }
+                                    },
+                                    {
+                                        data: { id: 'b' }
+                                    },
+                                    {
+                                        data: { id: 'c' }
+                                    },
+                                    {
+                                        data: {id: 'd'}
+                                    }
+                                ],
+                                edges: [
+                                    {
+                                        data: { id: 'ab', source: 'a', target: 'b' }
+                                    },
+                                    {
+                                        data: { id: 'ac', source: 'a', target: 'c' }
+                                    },
+                                    {
+                                        data: { id: 'ad', source: 'a', target: 'd' }
+                                    }
+                                ]
                             },
-                            function (xhr, textStatus, errorThrown) {
-                                // TODO: handle error and show this to the UI somehow
+                            style: [
+                                {
+                                    selector: 'node',
+                                    style: {
+                                        'label': 'data(id)'
+                                    }
+                                }
+                            ]
+                        });
+
+                        var myModal = new bootstrap.Modal($modal, options);
+                        $modal[0].addEventListener("shown.bs.modal",
+                            function (event) {
+
+                                var layout = cy.layout({
+                                    name: 'circle',
+                                    fit: true,
+                                    avoidOverlap: true
+                                });
+
+                                layout.run();
+
+                                //cy.viewport({ zoom: 2, pan: { x: 100, y: 100 } });
+                                //cy.fit();
+                                //cy.reset();
+                                //cy.resize();
                             });
 
-                        */
+                        myModal.show();
+
+
+                        // TODO: Uncomment following code:
+                        //graphApi.getGraph(
+                        //    function (response, textStatus, xhr) {
+                        //        //TODO: use library https://js.cytoscape.org/ to draw a graph in the modal
+                        //    },
+                        //    function (xhr, textStatus, errorThrown) {
+                        //        // TODO: handle error and show this to the UI somehow
+                        //    });
                     });
 
                 $btnConnectNodes.on("click",
@@ -221,16 +308,16 @@
 
                     $tbody.empty();
                     $.each(data,
-                        function(i, item) {
+                        function (i, item) {
                             var $circle = $("<button>").addClass("btn btn-primary btn-circle");
                             var endNodesCircles = [];
 
                             item.endNodes.forEach(endNodeName => endNodesCircles.push($circle.addClass("me-1").text(endNodeName).prop("outerHTML")));
                             $("<tr>").addClass("d-flex").append(
-                                    $("<td>").addClass("col-1").text(i + 1),
-                                    $("<td>").addClass("col-1").append($circle.text(item.startNode)),
-                                    $("<td>").addClass("col-0").append("<i class='bi-arrow-right'></i>"),
-                                    $("<tr>").addClass("col-4").html(endNodesCircles.join("")))
+                                $("<td>").addClass("col-1").text(i + 1),
+                                $("<td>").addClass("col-2").append($circle.text(item.startNode)),
+                                $("<td>").addClass("col-0").append("<i class='bi-arrow-right'></i>"),
+                                $("<tr>").addClass("col-4").html(endNodesCircles.join("")))
                                 .appendTo($tbody);
                         });
                 }
@@ -252,7 +339,7 @@
                     function (e) {
                         if (e.which === 13) {
                             var val = $txtNodeName.val();
-                            var exists = graphApi.getNodes().filter(x => x.name === val).length > 0 ;
+                            var exists = graphApi.getNodes().filter(x => x.name === val).length > 0;
 
                             if (exists) {
                                 return alert("Duplicate node name!");
@@ -268,7 +355,7 @@
                         }
                     });
 
-                self.init = function() {
+                self.init = function () {
                     resetTextInput();
                 }
 
@@ -280,7 +367,7 @@
 
                 function removeOptionFromSelectTag($selectTag, nodeNames) {
                     var id = $selectTag.attr("id");
-                    $.each(nodeNames, function(i, val) {
+                    $.each(nodeNames, function (i, val) {
                         var selector = "#".concat(id).concat(" option[value='").concat(val).concat("']");
                         var $option = $container.find(selector);
 
@@ -325,7 +412,7 @@
                 function increaseSelectTagHeight() {
                     var startNodesCount = getNodesCount();
 
-                    if (startNodesCount <= 10){
+                    if (startNodesCount <= 10) {
                         $startNodeSelect.attr("size", startNodesCount++);
                     }
                 }
