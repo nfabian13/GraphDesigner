@@ -66,19 +66,6 @@ namespace GraphDesigner.Controllers
 
         public IActionResult Index()
         {
-            var graph = GetGraphObject();
-
-            var grade = graph.CalculateGraphGrade();
-            var sum = graph.CalculateSummatoryNodesGrade();
-            var min = graph.CalculateLowestNodeGrade();
-
-            var sb = new StringBuilder();
-            sb.AppendLine($"Grade: {grade}");
-            sb.AppendLine($"Sum: {sum}");
-            sb.AppendLine($"Min: {min}");
-
-            Debug.WriteLine(sb.ToString());
-
             return View();
         }
 
@@ -90,7 +77,7 @@ namespace GraphDesigner.Controllers
 
         [HttpPost]
         [Route("get-graph")]
-        public IActionResult GetGraph(List<NodeModel> nodes, List<EdgeModel> edges)
+        public IActionResult GetGraph(List<NodeModel> nodes, List<EdgeModel> edges, List<int> nodePathIds)
         {
             var graph = new Graph();
             foreach (var node in nodes)
@@ -110,7 +97,10 @@ namespace GraphDesigner.Controllers
                     EndNodeId = graph.Nodes.First(x => x.Id == edge.EndNodeId).Id
                 });
             }
-          
+
+            if (graph.ValidPath(nodePathIds))
+                graph.PaintValidPath(nodePathIds);
+
             var graphDto = new GraphDto
             {
                 Graph = graph,
@@ -118,39 +108,6 @@ namespace GraphDesigner.Controllers
                 GraphGradeSummatory = graph.CalculateSummatoryNodesGrade(),
                 GraphLowestGrade = graph.CalculateLowestNodeGrade(),
                 GraphHasCycle = graph.DetectCycleInGraph()
-            };
-
-            return Json(graphDto);
-        }
-
-        [HttpPost]
-        [Route("get-graph-valid-path")]
-        public IActionResult GetGraphValidPath(List<NodeModel> nodes, List<EdgeModel> edges, List<int> nodePathIds)
-        {
-            var graph = new Graph();
-            foreach (var node in nodes)
-            {
-                graph.Nodes.Add(new Node
-                {
-                    Name = node.Name,
-                    Id = node.Id
-                });
-            }
-
-            foreach (var edge in edges)
-            {
-                var node = graph.Nodes.First(x => x.Id == edge.StartNodeId);
-                node.Edges.Add(new Edge
-                {
-                    EndNodeId = graph.Nodes.First(x => x.Id == edge.EndNodeId).Id
-                });
-            }
-
-            if(graph.ValidPath(nodePathIds))
-                graph.PaintValidPath(nodePathIds);
-            var graphDto = new GraphDto
-            {
-                Graph = graph
             };
 
             return Json(graphDto);

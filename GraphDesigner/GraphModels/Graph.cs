@@ -45,7 +45,7 @@ namespace GraphDesigner.GraphModels
         }
         public bool ValidPath(List<int> nodeIds)
         {
-            if (nodeIds.Count == 0) return false;
+            if (nodeIds == null || nodeIds.Count == 0) return false;
            
             var prevNode = new Node();
             foreach (var nodeId in nodeIds)
@@ -66,12 +66,10 @@ namespace GraphDesigner.GraphModels
                         nodeIsConnected = true;
                         break;
                     }
-
                 }
 
                 if (!nodeIsConnected)
                     return false;
-
             }
 
             return true;
