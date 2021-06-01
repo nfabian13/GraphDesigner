@@ -17,8 +17,16 @@
         style: [
             {
                 selector: 'node',
+
                 style: {
+                    'background-color': '#4988fc',
                     'label': 'data(id)'
+                }
+            },
+          {
+                selector: 'edge',
+                style: {
+                   'line-color': '#ccc'
                 }
             }
         ]
@@ -119,7 +127,7 @@
 
                 graphApi.getGraph(
                     function(response, textStatus, xhr) {
-                        console.log(JSON.stringify("http response: " + JSON.stringify(response)));
+                        
                         var graph = response.graph;
                         var graphElements = [];
                         $.each(graph.nodes,
@@ -129,23 +137,19 @@
                                     data: { id: node.name }
                                 };
                                 graphElements.push(nodeElement);
-                                var edge = {};
-                                node.edges.forEach((edgeElement, edgeIndex) => {
+                                node.edges.forEach((edgeElement) => {
+                                    var edge = {};
                                     var edgeId = "".concat(node.id).concat(edgeElement.endNodeId);
-                                    var targetNodeId = graph.nodes.find(x => x.id === edgeElement.endNodeId).name;
+                                    var targetNodeName = graph.nodes.find(x => x.id === edgeElement.endNodeId).name;
                                     edge.group = "edges";
-                                    edge.data = { id: edgeId, source: node.name, target: targetNodeId };
+                                    edge.data = { id: edgeId, source: node.name, target: targetNodeName };
                                     graphElements.push(edge);
                                 });
                             });
 
-                        console.log("JSON structure sent to the graph lib: " + JSON.stringify(graphElements));
-
+                      
                         displayGraphStats(response);
-
                         cy.add(graphElements);
-
-                        //addHardCodedNodesToGraph();
                         showModal();
                     },
                     function(xhr, textStatus, errorThrown) {
@@ -164,11 +168,23 @@
                     alert("Nodes selection is invalid!");
                     return;
                 }
+               
+                var edges = graphApi.getEdges();
+
                 $.each(startNodesSelectedOptions,
-                    function(index, opt) {
-                        //duplicate addEdge() call due to bidirectional edge addition
-                        graphApi.addEdge(parseInt(opt.value), parseInt(endNodeSelectedOption.value));
-                        graphApi.addEdge(parseInt(endNodeSelectedOption.value), parseInt(opt.value));
+                    function (index, opt) {
+                        var duplicate = false;
+                        var posibleMatchEdge = edges.filter((edge) => edge.startNodeId == opt.value);
+                        posibleMatchEdge.forEach((edge) => {
+                            if (edge.endNodeId == endNodeSelectedOption.value) {
+                                duplicate = true;
+                            }
+                        });
+                        if (!duplicate) {
+                            graphApi.addEdge(parseInt(opt.value), parseInt(endNodeSelectedOption.value));
+                            graphApi.addEdge(parseInt(endNodeSelectedOption.value), parseInt(opt.value));    
+                        }
+                        
                     });
                 drawNodeConnectionsTable();
             });

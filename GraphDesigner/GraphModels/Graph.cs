@@ -11,7 +11,6 @@ namespace GraphDesigner.GraphModels
         }
 
         public string Name { get; set; }
-        public int Grade { get; set; }
         public List<Node> Nodes { get; set; }
 
         public int CalculateGraphGrade()
@@ -33,6 +32,49 @@ namespace GraphDesigner.GraphModels
         {
             var node = Nodes.First();
             return HasCycle(node,-1);
+        }
+
+        public void PaintValidPath(List<int> nodeIds)
+        {
+            var prevNode = new Node();
+            foreach (var nodeId in nodeIds)
+            {
+                var currentNode = Nodes.Find(node => node.Id == nodeId);
+                currentNode.ValidColor = true;
+            }
+        }
+        public bool ValidPath(List<int> nodeIds)
+        {
+            if (nodeIds.Count == 0) return false;
+           
+            var prevNode = new Node();
+            foreach (var nodeId in nodeIds)
+            {
+                var currentNode = Nodes.Find(node => node.Id == nodeId);
+                if (prevNode.Id == 0)
+                {
+                    prevNode = currentNode;
+                    continue;
+                }
+
+                var nodeIsConnected = false;
+                foreach (var edge in prevNode.Edges)
+                {
+                    if (edge.EndNodeId == currentNode.Id)
+                    {
+                        prevNode = currentNode;
+                        nodeIsConnected = true;
+                        break;
+                    }
+
+                }
+
+                if (!nodeIsConnected)
+                    return false;
+
+            }
+
+            return true;
         }
 
         private bool HasCycle(Node node, int prevNodeId)

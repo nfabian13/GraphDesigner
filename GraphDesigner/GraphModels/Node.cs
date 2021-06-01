@@ -12,6 +12,7 @@ namespace GraphDesigner.GraphModels
         public int Id { get; set; }
         public string Name { get; set; }
         public bool Visit { get; set; }
+        public bool ValidColor { get; set; } = false;
         public List<Edge> Edges { get; set; }
     }
 }
