@@ -2,13 +2,29 @@
     var self = this;
     var nodes = [];
     var edges = [];
+    var nodeIds = []; // used to check if there is a valid path between them
+
     var idGenerator = 0;
+
+    self.getNodeIds = function() {
+        return nodeIds;
+    }
+
+    self.addNodeId = function(nodeId) {
+        nodeIds.push(nodeId);
+    }
+
+    self.resetNodeIds = function() {
+        nodeIds = [];
+    }
 
     self.getGraph = function(successCb, errorCb) {
         var myData = {
             nodes,
-            edges
+            edges,
+            nodePathIds: nodeIds
         };
+
         $.ajax({
             type: "POST",
             url,

@@ -59,22 +59,30 @@
         </div>
 
         <div class="row mt-5">
-            <div class="col-md-5 offset-md-5">
+            <div class="col-md-4 offset-md-3">
                 <table id="nodeConnectionsTable" class="table table-borderless caption-top">
                     <caption>Node's connection</caption>
                     <thead class="table-light">
-                        <tr class="d-flex">
-                            <th scope="col" class="col-1">#</th>
-                            <th scope="col" class="col-2">Node</th>
-                            <th scope="col" class="col-0"></th>
-                            <th scope="col" class="col-4">Connects To</th>
-                        </tr>
+                    <tr class="d-flex">
+                        <th scope="col" class="col-1">#</th>
+                        <th scope="col" class="col-2">Node</th>
+                        <th scope="col" class="col-0"></th>
+                        <th scope="col" class="col-4">Connects To</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        @* Data is populated dynamically *@
+                    @* Data is populated dynamically *@
                     </tbody>
 
                 </table>
+            </div>
+            <div class="col-md-3">
+                <label for="nodesPathValidationDropdown">Select nodes to check if there is a valid path between them:</label>
+                <select class="form-control" id="nodesPathValidationDropdown">
+                    <option value="-1"></option>
+                </select>
+                <div id="validateNodesPathContainer" class="mt-3">
+                </div>
             </div>
         </div>
 

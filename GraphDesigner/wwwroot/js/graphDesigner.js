@@ -8,29 +8,11 @@
     var $table = $container.find("#nodeConnectionsTable");
     var $btnCreateGraph = $container.find("#btnCreateGraph");
     var $modal = $container.find("#graphModal");
+    var $validPathsSelect = $container.find("#nodesPathValidationDropdown");
+    var $validateNodesPathContainer = $container.find("#validateNodesPathContainer");
+    var $circle = $("<button>").addClass("btn btn-primary btn-circle");
     var url = $container.find("form").data("url");
     var graphApi = new GraphApi(url);
-    var cy = cytoscape({
-        container: document.getElementById("cy"),
-        zoom: 1,
-        pan: { x: 300, y: 200 },
-        style: [
-            {
-                selector: 'node',
-
-                style: {
-                    'background-color': '#4988fc',
-                    'label': 'data(id)'
-                }
-            },
-          {
-                selector: 'edge',
-                style: {
-                   'line-color': '#ccc'
-                }
-            }
-        ]
-    });
 
     self.init = function() {
         bindDOMEvents();
@@ -39,21 +21,76 @@
 
     function bindDOMEvents() {
         bindOnClickEvents();
-        bindModalShownEvent();
+        bindModalEvents();
         bindMiscEvents();
+    }
+
+    function getCytoscapeDefaults() {
+        return {
+            container: document.getElementById("cy"),
+            zoom: 2,
+            pan: { x: 300, y: 200 },
+            layout: {
+                name: 'circle',
+                fit: true,
+                avoidOverlap: true
+            },
+            style: [
+                {
+                    selector: 'node',
+                    style: {
+                        //'background-color': '#4988fc',
+                        'label': 'data(id)'
+                    }
+                },
+                {
+                    selector: 'edge',
+                    style: {
+                        'line-color': '#ccc'
+                    }
+                }
+            ]
+        };
     }
 
     function bindMiscEvents() {
         $("form").submit(function(e) {
             e.preventDefault();
         });
+
+        $validPathsSelect.on("change",
+            function () {
+                var nodeId = $(this).val();
+                var nodeIdsArr = graphApi.getNodeIds();
+
+                if (nodeId == -1) {
+                    return;
+                }
+
+                // dont allow consecutive same node selection
+                if (nodeIdsArr[nodeIdsArr.length - 1] == nodeId) {
+                    return;
+                }
+
+                graphApi.addNodeId(nodeId);
+                var nodeName = $(this).children("option:selected").text();
+
+                if (nodeIdsArr.length == 1) {
+                    $validateNodesPathContainer.append($circle.clone().text(nodeName).prop("outerHTML"));
+                } else {
+                    $validateNodesPathContainer.append("<i class='bi-arrow-right'></i>");
+                    $validateNodesPathContainer.append($circle.clone().text(nodeName).prop("outerHTML"));
+                }
+               
+            });
+
         $startNodeSelect.on("change",
             function() {
-                var nodeNamesArray = $(this).val();
+                var nodeIdsArray = $(this).val(); 
                 populateEndNodesTag();
-                removeOptionFromSelectTag($endNodeSelect, nodeNamesArray);
+                removeOptionFromSelectTag($endNodeSelect, nodeIdsArray);
                 $endNodeSelect.prop("disabled", false);
-                if (nodeNamesArray.length === graphApi.getNodes().length) {
+                if (nodeIdsArray.length === graphApi.getNodes().length) {
                     $endNodeSelect.prop("disabled", true);
                 }
             });
@@ -70,25 +107,26 @@
                         alert("Duplicate node name!");
                         return;
                     }
+
                     var newlyAddedNodeId = graphApi.addNode(val);
                     resetStartNodesSelection();
                     appendOptionToSelectTag($startNodeSelect, newlyAddedNodeId, val);
                     increaseSelectTagHeight();
                     populateEndNodesTag();
                     resetTextInput();
+                    appendOptionToSelectTag($validPathsSelect, newlyAddedNodeId, val);
                 }
             });
     }
 
-    function bindModalShownEvent() {
+    function bindModalEvents() {
         $modal[0].addEventListener("shown.bs.modal",
             function(event) {
-                var layout = cy.layout({
-                    name: 'circle',
-                    fit: true,
-                    avoidOverlap: true
-                });
-                layout.run();
+            });
+
+        $modal[0].addEventListener("hide.bs.modal",
+            function (event) {
+               
             });
     }
 
@@ -105,18 +143,6 @@
         myModal.show();
     }
 
-    function addHardCodedNodesToGraph() {
-        cy.add([
-            { group: "nodes", data: { id: "a" } /*position: { x: 100, y: 100 }*/ },
-            { group: "nodes", data: { id: "b" } /*position: { x: 200, y: 200 }*/ },
-            { group: "nodes", data: { id: "c" } /*position: { x: 300, y: 300 }*/ },
-            { group: "nodes", data: { id: 'd' } /*position: { x: 400, y: 400 }*/ },
-            { group: "edges", data: { id: 'ab', source: 'a', target: 'b' } },
-            { group: "edges", data: { id: 'ba', source: 'b', target: 'a' } },
-            { group: "edges", data: { id: 'ad', source: 'a', target: 'd' } }
-        ]);
-    }
-
     function bindOnClickEvents() {
         $btnCreateGraph.on("click",
             function () {
@@ -127,15 +153,23 @@
 
                 graphApi.getGraph(
                     function(response, textStatus, xhr) {
-                        
+                        var cy = cytoscape(getCytoscapeDefaults());
+
                         var graph = response.graph;
                         var graphElements = [];
                         $.each(graph.nodes,
-                            function(nodeIndex, node) {
+                            function (nodeIndex, node) {
+                                var isValidColor = node.validColor;
+                                var color = isValidColor ? "green" : "#4988fc";
+
                                 var nodeElement = {
                                     group: "nodes",
-                                    data: { id: node.name }
+                                    data: { id: node.name },
+                                    style: {
+                                        'background-color': color
+                                    }
                                 };
+
                                 graphElements.push(nodeElement);
                                 node.edges.forEach((edgeElement) => {
                                     var edge = {};
@@ -150,6 +184,17 @@
                       
                         displayGraphStats(response);
                         cy.add(graphElements);
+                        setTimeout(function() {
+                                var layout = cy.layout({
+                                    name: 'circle',
+                                    fit: true,
+                                    avoidOverlap: true
+                                });
+                                layout.run();
+                            },
+                            100);
+                       
+
                         showModal();
                     },
                     function(xhr, textStatus, errorThrown) {
@@ -215,13 +260,12 @@
         $tbody.empty();
         $.each(data,
             function(i, item) {
-                var $circle = $("<button>").addClass("btn btn-primary btn-circle");
                 var endNodesCircles = [];
                 item.endNodes.forEach(
-                    endNodeName => endNodesCircles.push($circle.addClass("me-1").text(endNodeName).prop("outerHTML")));
+                    endNodeName => endNodesCircles.push($circle.clone().addClass("me-1").text(endNodeName).prop("outerHTML")));
                 $("<tr>").addClass("d-flex").append(
                         $("<td>").addClass("col-1").text(i + 1),
-                        $("<td>").addClass("col-2").append($circle.text(item.startNode)),
+                        $("<td>").addClass("col-2").append($circle.clone().text(item.startNode)),
                         $("<td>").addClass("col-0").append("<i class='bi-arrow-right'></i>"),
                         $("<tr>").addClass("col-4").html(endNodesCircles.join("")))
                     .appendTo($tbody);
